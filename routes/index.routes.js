@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const authRoutes = require("./auth.routes");
 const queryRoutes = require("./query.routes");
-const trainerAuthRoutes = require("./trainerAuth.routes");
 const trainerRoutes = require("./trainer.routes");
 
 
@@ -13,8 +12,6 @@ router.get("/", (req, res, next) => {
 router.use("/auth", authRoutes);
 
 router.use("/query", queryRoutes);
-
-router.use("/trainer/auth", trainerAuthRoutes);
 
 router.use("/trainer", trainerRoutes);
 
