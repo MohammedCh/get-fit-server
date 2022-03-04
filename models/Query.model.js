@@ -12,11 +12,17 @@ const querySchema = new Schema(
     },
     gender: {
       type: String,
+      enum: ['male', 'female'],
       required: [true, "Gender is required."],
     },
     goal: {
       type: String,
       required: [true, "Goal is required."],
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "createdBy is required."],
     },
     info: {
       type: String,

@@ -12,11 +12,16 @@ const conversationSchema = new Schema(
       ref: "Trainee",
       required: true,
     },
+    queryId: {
+      type: Schema.Types.ObjectId,
+      ref: "Query",
+      required: [true, "queryId is required."],
+    },
     conversations: [
       {
         senderId: { type: Schema.Types.ObjectId },
         message: { type: String },
-        timestamps: true,
+        timestamp: { type: Date, default: Date.now },
       },
     ],
   },

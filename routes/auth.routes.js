@@ -19,7 +19,7 @@ router.get("/loggedin", (req, res) => {
 });
 
 router.post("/signup", isLoggedOut, (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, name, description, imgUrl, type } = req.body;
 
   if (!username) {
     return res
@@ -60,7 +60,11 @@ router.post("/signup", isLoggedOut, (req, res) => {
         // Create a user and save it in the database
         return User.create({
           username,
-          password: hashedPassword,
+          passwordHash: hashedPassword,
+          name,
+          description,
+          imgUrl,
+          type,
         });
       })
       .then((user) => {
@@ -107,12 +111,12 @@ router.post("/login", isLoggedOut, (req, res, next) => {
       if (!user) {
         return res.status(400).json({ errorMessage: "Wrong credentials." });
       }
-
       // If user is found based on the username, check if the in putted password matches the one saved in the database
-      bcrypt.compare(password, user.password).then((isSamePassword) => {
+      bcrypt.compare(password, user.passwordHash).then((isSamePassword) => {
         if (!isSamePassword) {
           return res.status(400).json({ errorMessage: "Wrong credentials." });
         }
+
         req.session.user = user;
         // req.session.user = user._id; // ! better and safer but in this case we saving the entire user object
         return res.json(user);

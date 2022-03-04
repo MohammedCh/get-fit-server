@@ -23,6 +23,7 @@ const userSchema = new Schema(
     },
     type: {
       type: String,
+      enum: ["trainer", "trainee"],
     },
     queriesCreated: [{ type: Schema.Types.ObjectId, ref: "Query" }],
     queriesRespondedTo: [{ type: Schema.Types.ObjectId, ref: "Query" }],

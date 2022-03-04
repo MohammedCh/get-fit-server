@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const authRoutes = require("./auth.routes");
-const queryRoutes = require("./query.routes");
-const trainerRoutes = require("./trainer.routes");
+const queriesRoutes = require("./queries.routes");
+const trainersRoutes = require("./trainers.routes");
 
 
 /* GET home page */
@@ -11,8 +11,8 @@ router.get("/", (req, res, next) => {
 
 router.use("/auth", authRoutes);
 
-router.use("/query", queryRoutes);
+router.use("/queries", queriesRoutes);
 
-router.use("/trainer", trainerRoutes);
+router.use("/trainers", trainersRoutes);
 
 module.exports = router;
