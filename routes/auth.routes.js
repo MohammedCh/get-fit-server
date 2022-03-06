@@ -4,21 +4,20 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 
+const { isAuthenticated } = require("../middleware/jwt.middleware");
+const jwt = require("jsonwebtoken");
+
 // How many rounds should bcrypt run the salt (default [10 - 12 rounds])
 const saltRounds = 10;
 
 // Require the User model in order to interact with the database
 const User = require("../models/User.model");
 
-// Require necessary (isLoggedOut and isLiggedIn) middleware in order to control access to specific routes
-const isLoggedOut = require("../middleware/isLoggedOut");
-const isLoggedIn = require("../middleware/isLoggedIn");
-
 router.get("/loggedin", (req, res) => {
   res.json(req.user);
 });
 
-router.post("/signup", isLoggedOut, (req, res) => {
+router.post("/signup", (req, res) => {
   const { username, password, name, description, imgUrl, type } = req.body;
 
   if (!username) {
@@ -32,6 +31,13 @@ router.post("/signup", isLoggedOut, (req, res) => {
       errorMessage: "Your password needs to be at least 8 characters long.",
     });
   }
+
+  // // Use regex to validate the email format
+  // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  // if (!emailRegex.test(email)) {
+  //   res.status(400).json({ message: 'Provide a valid email address.' });
+  //   return;
+  // }
 
   //   ! This use case is using a regular expression to control for special characters and min length
   /*
@@ -87,7 +93,7 @@ router.post("/signup", isLoggedOut, (req, res) => {
   });
 });
 
-router.post("/login", isLoggedOut, (req, res, next) => {
+router.post("/login", (req, res, next) => {
   const { username, password } = req.body;
 
   if (!username) {
@@ -117,9 +123,21 @@ router.post("/login", isLoggedOut, (req, res, next) => {
           return res.status(400).json({ errorMessage: "Wrong credentials." });
         }
 
-        req.session.user = user;
+        // Deconstruct the user object to omit the password
+        const { _id, username, type } = user;
+
+        // Create an object that will be set as the token payload
+        const payload = { _id, username, type };
+
+        // Create and sign the token
+        const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+          algorithm: "HS256",
+          expiresIn: "6h",
+        });
+
+        //req.session.user = user;
         // req.session.user = user._id; // ! better and safer but in this case we saving the entire user object
-        return res.json(user);
+        return res.status(200).json(authToken);
       });
     })
 
@@ -131,13 +149,23 @@ router.post("/login", isLoggedOut, (req, res, next) => {
     });
 });
 
-router.get("/logout", isLoggedIn, (req, res) => {
+router.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).json({ errorMessage: err.message });
     }
     res.json({ message: "Done" });
   });
+});
+
+router.get("/verify", isAuthenticated, (req, res, next) => {
+  // If JWT token is valid the payload gets decoded by the
+  // isAuthenticated middleware and made available on `req.payload`
+  console.log(`req.payload`, req.payload);
+
+  // Send back the object with user data
+  // previously set as the token payload
+  res.status(200).json(req.payload);
 });
 
 module.exports = router;

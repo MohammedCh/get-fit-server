@@ -5,13 +5,12 @@ const router = express.Router();
 const Conversation = require("../models/Conversation.model");
 const Query = require("../models/Query.model");
 const User = require("../models/User.model");
-const isLoggedIn = require("../middleware/isLoggedIn");
 const isTrainee = require("../middleware/isTrainee");
 const isTrainer = require("../middleware/isTrainer");
 const { Types } = require("mongoose");
 
 //submits and creates a query if logged in as a trainee
-router.post("/create", isLoggedIn, isTrainee, (req, res) => {
+router.post("/create", isTrainee, (req, res) => {
   const { title, age, gender, goal, info, imgUrl } = req.body;
   Query.create({
     title,
@@ -26,7 +25,7 @@ router.post("/create", isLoggedIn, isTrainee, (req, res) => {
   })
     .then((createdQuery) => {
       return User.findByIdAndUpdate(
-        req.session.user._id,
+        req.payload._id,
         { $addToSet: { queriesCreated: createdQuery._id } },
         {
           new: true,
@@ -40,7 +39,7 @@ router.post("/create", isLoggedIn, isTrainee, (req, res) => {
 });
 
 //shows a list of all active queries (for trainers) if logged in as a trainer
-router.get("/", isLoggedIn, isTrainer, (req, res) => {
+router.get("/", isTrainer, (req, res) => {
   Query.find()
     .then((queryList) => {
       res.status(200).json(queryList);
@@ -52,7 +51,7 @@ router.get("/", isLoggedIn, isTrainer, (req, res) => {
 
 //TODO convert "allow if user part of conversation" to middleware instead of if statement
 //create a conversation or add message to the conversation if you are part of it
-router.post("/conversations/:conversationId", isLoggedIn, async (req, res) => {
+router.post("/conversations/:conversationId", async (req, res) => {
   const { conversationId } = req.params;
   const { message, queryId } = req.body;
 
@@ -65,8 +64,8 @@ router.post("/conversations/:conversationId", isLoggedIn, async (req, res) => {
   if (conversation) {
     // Only append message if user is part of it
     if (
-      conversation.trainerId == req.session.user._id ||
-      conversation.traineeId == req.session.user._id
+      conversation.trainerId == req.payload._id ||
+      conversation.traineeId == req.payload._id
     ) {
       try {
         const response = await Conversation.findByIdAndUpdate(
@@ -109,7 +108,7 @@ router.post("/conversations/:conversationId", isLoggedIn, async (req, res) => {
 
 //TODO convert "allow if user part of conversation" to middleware instead of if statement
 //returns the conversation if you are part of it
-router.get("/conversations/:conversationId", isLoggedIn, async (req, res) => {
+router.get("/conversations/:conversationId", async (req, res) => {
   const { conversationId } = req.params;
 
   //check validity of ID. If invalid, assign value of null
@@ -153,7 +152,7 @@ router.get("/conversations/:conversationId", isLoggedIn, async (req, res) => {
 // });
 
 //shows a query's details
-router.get("/:queryId", isLoggedIn, async (req, res) => {
+router.get("/:queryId", async (req, res) => {
   const { queryId } = req.params;
   try {
     const query = await Query.findById(queryId);

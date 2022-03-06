@@ -2,7 +2,7 @@ const router = require("express").Router();
 const authRoutes = require("./auth.routes");
 const queriesRoutes = require("./queries.routes");
 const trainersRoutes = require("./trainers.routes");
-
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 /* GET home page */
 router.get("/", (req, res, next) => {
@@ -11,8 +11,8 @@ router.get("/", (req, res, next) => {
 
 router.use("/auth", authRoutes);
 
-router.use("/queries", queriesRoutes);
+router.use("/queries", isAuthenticated, queriesRoutes);
 
-router.use("/trainers", trainersRoutes);
+router.use("/trainers", isAuthenticated, trainersRoutes);
 
 module.exports = router;
