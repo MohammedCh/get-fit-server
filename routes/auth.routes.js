@@ -94,12 +94,16 @@ router.post("/signup", (req, res) => {
 });
 
 router.post("/login", (req, res, next) => {
-  const { username, password } = req.body;
-
+  const { username, password, userType } = req.body;
   if (!username) {
     return res
       .status(400)
       .json({ errorMessage: "Please provide your username." });
+  }
+  if (!userType) {
+    return res
+      .status(400)
+      .json({ errorMessage: "Please provide the right user type." });
   }
 
   // Here we use the same logic as above
@@ -117,6 +121,10 @@ router.post("/login", (req, res, next) => {
       if (!user) {
         return res.status(400).json({ errorMessage: "Wrong credentials." });
       }
+      if (user.type !== userType) {
+        return res.status(400).json({ errorMessage: "Wrong credentials." });
+      }
+
       // If user is found based on the username, check if the in putted password matches the one saved in the database
       bcrypt.compare(password, user.passwordHash).then((isSamePassword) => {
         if (!isSamePassword) {
@@ -147,15 +155,6 @@ router.post("/login", (req, res, next) => {
       next(err);
       // return res.status(500).render("login", { errorMessage: err.message });
     });
-});
-
-router.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ errorMessage: err.message });
-    }
-    res.json({ message: "Done" });
-  });
 });
 
 router.get("/verify", isAuthenticated, (req, res, next) => {
