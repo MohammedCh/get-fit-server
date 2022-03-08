@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
       req.payload.type === "trainer"
         ? await Conversation.find({
             trainerId: req.payload._id,
-          })
+          }).populate("queryId")
         : await Conversation.find({
             traineeId: req.payload._id,
           });
@@ -65,13 +65,15 @@ router.post("/:conversationId", async (req, res) => {
   } else {
     try {
       const query = await Query.findById(queryId);
-      await Conversation.create({
+      const newConversation = await Conversation.create({
         trainerId: req.payload._id, // because only one who can create a the conversation is the trainer
         traineeId: query.createdBy,
         queryId,
         conversations: [{ senderId: req.payload._id, message }],
       });
-      return res.status(200).json("Conversation created successfully!");
+      return res
+        .status(200)
+        .json(newConversation);
     } catch (e) {
       res.status(500).json("Failed to create conversation " + e);
     }
@@ -95,6 +97,7 @@ router.get("/:conversationId", async (req, res) => {
       conversation.traineeId == req.payload._id
     ) {
       Conversation.findById(conversationId)
+        .populate("queryId")
         .then((conversation) => {
           res.status(200).json(conversation);
         })

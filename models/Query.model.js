@@ -27,9 +27,6 @@ const querySchema = new Schema(
     info: {
       type: String,
     },
-    imgUrl: {
-      type: String,
-    },
     isActive: {
       type: Boolean,
     },

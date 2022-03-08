@@ -16,7 +16,6 @@ router.post("/create", isTrainee, async (req, res) => {
       gender,
       goal,
       info,
-      imgUrl,
       createdBy: req.payload._id,
       isActive: true,
       conversations: [],
@@ -39,7 +38,8 @@ router.post("/create", isTrainee, async (req, res) => {
   }
 });
 
-//returb a list of queries
+//TODO sorting/filtering then pagination
+//return a list of queries
 router.get("/", async (req, res) => {
   try {
     //if trainer, return all queries. If user, return user's queries
