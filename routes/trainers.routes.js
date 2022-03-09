@@ -6,8 +6,7 @@ const User = require("../models/User.model");
 //returns a trainer's profile
 router.get("/profile/:trainerId", async (req, res) => {
   try {
-    const trainerId =
-      req.payload.type === "trainer" ? req.payload._id : req.params.trainerId;
+    const trainerId = req.params.trainerId;
 
     //TODO add if (req.payload.type === "trainee") then check if trainer profile has responded to one of their queries - if not dont return
     const profile = await User.findById(trainerId);

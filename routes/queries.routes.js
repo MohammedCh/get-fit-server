@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
 router.get("/:queryId", async (req, res) => {
   try {
     const { queryId } = req.params;
-    const query = await Query.findById(queryId);
+    const query = await Query.findById(queryId).populate("conversations");
 
     //if trainer remove conversations, else if creator return whole query,
     //else deny access cause they arent the trainer or owner of the query
