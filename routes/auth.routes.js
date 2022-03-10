@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const fileUploader = require("../config/cloudinary.config");
 
 // ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
@@ -17,8 +18,11 @@ router.get("/loggedin", (req, res) => {
   res.json(req.user);
 });
 
-router.post("/signup", (req, res) => {
-  const { username, password, name, description, imgUrl, type } = req.body;
+router.post("/signup", fileUploader.single("imgUrl"), (req, res) => {
+  const { username, password, name, description, type } = req.body;
+  console.log(req.body)
+  const imgUrl = req.file.path
+  console.log(req.file)
 
   if (!username) {
     return res
@@ -57,7 +61,6 @@ router.post("/signup", (req, res) => {
     if (found) {
       return res.status(400).json({ errorMessage: "Username already taken." });
     }
-
     // if user is not found, create a new user - start with hashing the password
     return bcrypt
       .genSalt(saltRounds)

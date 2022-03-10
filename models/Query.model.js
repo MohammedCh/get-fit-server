@@ -12,7 +12,7 @@ const querySchema = new Schema(
     },
     gender: {
       type: String,
-      enum: ['male', 'female'],
+      enum: ["male", "female", "other"],
       required: [true, "Gender is required."],
     },
     goal: {
@@ -30,7 +30,7 @@ const querySchema = new Schema(
     isActive: {
       type: Boolean,
     },
-    conversations: [{ type: Schema.Types.ObjectId, ref: "Conversation" }]
+    conversations: [{ type: Schema.Types.ObjectId, ref: "Conversation" }],
   },
   {
     timestamps: true,
