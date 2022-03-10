@@ -20,7 +20,7 @@ router.get("/loggedin", (req, res) => {
 
 router.post("/signup", fileUploader.single("imgUrl"), (req, res) => {
   const { username, password, name, description, type } = req.body;
-  const imgUrl = req.file.path ? req.file.path : "";
+  const imgUrl = req.file ? req.file.path : "";
 
   if (!username) {
     return res
@@ -161,7 +161,7 @@ router.post("/login", (req, res, next) => {
 router.get("/verify", isAuthenticated, (req, res, next) => {
   // If JWT token is valid the payload gets decoded by the
   // isAuthenticated middleware and made available on `req.payload`
-  console.log(`req.payload`, req.payload);
+  //console.log(`req.payload`, req.payload);
 
   // Send back the object with user data
   // previously set as the token payload
