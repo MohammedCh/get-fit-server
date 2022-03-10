@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
           }).populate("queryId")
         : await Conversation.find({
             traineeId: req.payload._id,
-          });
+          }).populate("queryId");
     res.status(200).json(conversations);
   } catch (e) {
     (e) => res.status(500).json("Error fetching conversations " + e);
@@ -64,16 +64,19 @@ router.post("/:conversationId", async (req, res) => {
     }
   } else {
     try {
-      const query = await Query.findById(queryId);
+      const query = await Query.findById(queryId)
       const newConversation = await Conversation.create({
         trainerId: req.payload._id, // because only one who can create a the conversation is the trainer
         traineeId: query.createdBy,
         queryId,
         conversations: [{ senderId: req.payload._id, message }],
       });
-      return res
-        .status(200)
-        .json(newConversation);
+      await Query.findByIdAndUpdate(queryId,
+        { $push: { conversations: newConversation._id } },
+        {
+          new: true,
+        });
+      return res.status(200).json(newConversation);
     } catch (e) {
       res.status(500).json("Failed to create conversation " + e);
     }

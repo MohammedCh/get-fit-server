@@ -9,7 +9,7 @@ const isTrainee = require("../middleware/isTrainee");
 //submits and creates a query if logged in as a trainee
 router.post("/create", isTrainee, async (req, res) => {
   try {
-    const { title, age, gender, goal, info, imgUrl } = req.body;
+    const { title, age, gender, goal, info } = req.body;
     const createdQuery = await Query.create({
       title,
       age,
@@ -27,12 +27,10 @@ router.post("/create", isTrainee, async (req, res) => {
         new: true,
       }
     );
-    return res
-      .status(201)
-      .json({
-        createdQueryId: createdQuery._id,
-        message: "Query created successfully!",
-      });
+    return res.status(201).json({
+      createdQueryId: createdQuery._id,
+      message: "Query created successfully!",
+    });
   } catch (e) {
     return res.status(500).json("Query creation failed" + e);
   }
@@ -53,8 +51,37 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.delete("/:queryId/delete", async (req, res) => {
+  try {
+    const { queryId } = req.params;
+
+    const query = await Query.findByIdAndRemove(queryId);
+    return res.status(200).json(query);
+  } catch (e) {
+    return res.status(500).json("Failed to fetch query " + e);
+  }
+});
+
+router.put("/:queryId/update", isTrainee, async (req, res) => {
+  try {
+    const { queryId } = req.params;
+    const { title, age, gender, goal, info } = req.body;
+
+    const query = await Query.findByIdAndUpdate(
+      queryId,
+      { title, age, gender, goal, info },
+      { new: true }
+    );
+
+    return res.status(200).json(query);
+  } catch (e) {
+    return res.status(500).json("Failed to fetch query " + e);
+  }
+});
+
 //shows a query's details
 router.get("/:queryId", async (req, res) => {
+
   try {
     const { queryId } = req.params;
     const query = await Query.findById(queryId).populate("conversations");
