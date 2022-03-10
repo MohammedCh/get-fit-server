@@ -20,9 +20,7 @@ router.get("/loggedin", (req, res) => {
 
 router.post("/signup", fileUploader.single("imgUrl"), (req, res) => {
   const { username, password, name, description, type } = req.body;
-  console.log(req.body)
-  const imgUrl = req.file.path
-  console.log(req.file)
+  const imgUrl = req.file.path ? req.file.path : "";
 
   if (!username) {
     return res
